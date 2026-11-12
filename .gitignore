@@ -9,3 +9,8 @@ logs/
 
 # Trained checkpoints and lexicon (large binaries, rebuilt by training)
 models/
+
+# Swift build output
+.build/
+.swiftpm/
+macos/build/

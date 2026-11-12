@@ -1,0 +1,53 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "tohu",
+  "title": "Tohu",
+  "description": "Restore Hungarian accents (ékezetek) using the local Tohu app",
+  "icon": "icon.png",
+  "author": "tohu",
+  "license": "MIT",
+  "categories": ["Productivity"],
+  "commands": [
+    {
+      "name": "fix-selection",
+      "title": "Fix Accents in Selection",
+      "subtitle": "Tohu",
+      "description": "Restore the accents of the selected text and paste it back in place",
+      "mode": "no-view"
+    },
+    {
+      "name": "write",
+      "title": "Write Hungarian",
+      "subtitle": "Tohu",
+      "description": "Type without accents, paste the accented text into the frontmost app",
+      "mode": "view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "apiUrl",
+      "title": "Tohu API URL",
+      "description": "Where Tohu.app listens (menu bar icon → Copy API URL)",
+      "type": "textfield",
+      "required": false,
+      "default": "http://127.0.0.1:7744"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^2.12.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.2.0",
+    "@types/node": "26.6.5",
+    "@types/react": "^19.3.0",
+    "eslint": "^10.14.0",
+    "prettier": "^3.10.1",
+    "typescript": "~6.0.0"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "lint": "ray lint",
+    "fix-lint": "ray lint --fix"
+  }
+}

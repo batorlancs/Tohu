@@ -11,3 +11,8 @@ dependencies = [
     "tqdm>=4.70.1",
     "wordfreq>=3.1.1",
 ]
+
+[dependency-groups]
+export = [
+    "coremltools>=9.0",
+]
