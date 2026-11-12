@@ -6,20 +6,22 @@
   "icon": "icon.png",
   "author": "tohu",
   "license": "MIT",
-  "categories": ["Productivity"],
+  "categories": [
+    "Productivity"
+  ],
   "commands": [
     {
       "name": "fix-selection",
-      "title": "Fix Accents in Selection",
+      "title": "Add Accents to Selection",
       "subtitle": "Tohu",
-      "description": "Restore the accents of the selected text and paste it back in place",
+      "description": "Add the missing accents to the selected text and paste it back in place",
       "mode": "no-view"
     },
     {
       "name": "write",
-      "title": "Write Hungarian",
+      "title": "Add Accents as You Type",
       "subtitle": "Tohu",
-      "description": "Type without accents, paste the accented text into the frontmost app",
+      "description": "Type without accents, see the accented text as you go, paste it into the frontmost app",
       "mode": "view"
     }
   ],

@@ -43,7 +43,7 @@ Tohu.app runs in the menu bar and keeps the model loaded (about 200 ms to load, 
 | Any app | select text, press **⌃⌥E**: the selection is replaced with the accented text |
 | Writer panel | **⌃⌥T**: type without accents, **⌘↩** pastes into the app you came from |
 | Services menu | right-click a selection → Services → *Restore Hungarian Accents* |
-| Raycast | *Fix Accents in Selection*, *Write Hungarian* |
+| Raycast | *Add Accents to Selection*, *Add Accents as You Type* |
 | Scripts | `curl -s localhost:7744/restore -d '{"text":"szia hogy vagy"}'` |
 | Terminal | `/Applications/Tohu.app/Contents/Helpers/tohu --explain "..."` |
 
