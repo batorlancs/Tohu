@@ -1,0 +1,153 @@
+# Hand-written challenge set (correctly accented gold). Never used for training.
+# --- slang / chat
+szia, mizu? rég nem beszéltünk
+naon jó volt a buli tegnap, köszi h szóltál
+nemtom mit csináljak most, sztem hagyjuk
+vmi baj van? olyan furán viselkedsz
+oké, akkor holnap találkozunk a szokásos helyen
+ja, tök igazad van, én is így gondolom
+hali, ráérsz ma este? csinálhatnánk vmit
+asszem elfelejtettem a kulcsomat otthon xd
+bocsi, most nem tudok beszélni, majd visszahívlak
+mindjárt ott vagyok, csak még bedobok egy kaját
+ez tök gáz, nem hiszem el
+lol ez nagyon vicces volt
+király, akkor megbeszéltük
+nem baj, majd legközelebb
+jó éjt, holnap beszélünk
+tesó, átjössz ma? hoztam sört
+haha ez durva, hol láttad?
+fáradt vagyok, ma már semmire nincs energiám
+kösz a segítséget, sokat jelentett
+mit eszünk ma? én megennék egy pizzát
+amúgy láttad az új részt? brutál jó lett
+ne aggódj, minden rendben lesz
+már úton vagyok, tíz perc és ott vagyok
+mennyi az idő? elkések a vonatról
+anyukám szerint túl sokat ülök a gép előtt
+Szerintem ez így nem fog működni.
+lécci küldd át a képeket ha hazaértél
+szívesen, bármikor
+ügyes vagy, büszke vagyok rád
+megvan a jegyed a koncertre?
+most keltem fel meg se reggeliztem
+holnap ráérek délután ha gondolod
+mit szólsz hozzá
+nem tom hol van a töltőm
+jövök már csak felöltözöm
+jó reggelt hogy aludtál
+elmentem a boltba hozzak valamit?
+kérsz kávét?
+persze szívesen
+várj megnézem
+hívj fel ha ráérsz
+# --- Hunglish (English stems, Hungarian suffixes)
+a meetingen megbeszéltük a deadline-t
+holnap reggel lesz egy callom a csapattal
+küldtem egy emailt, nézd meg légyszi
+a projektet még nem pusholtam fel a repóba
+ezt a featuret jövő héten deployoljuk
+lájkoltam a posztodat instán
+a deadline-ra már nem fogunk végezni
+nagyon nice volt a weekend, chilleltünk egy kicsit
+a csapat leadje azt mondta, hogy refaktorálni kell a kódot
+megnéztem a tutorialt, de nem értem a lényegét
+ez a bug már két napja szívat
+fixáltam a hibát, most már működik
+a frontendes srác szerint a backend lassú
+holnap lesz a sprint review, készüljetek
+töltsd le az appot, nagyon jó
+a Netflixen láttam egy jó sorozatot
+streameltem egész este
+el kell mennem shoppingolni, nincs mit felvennem
+a manager megkérdezte, mikor lesz kész a report
+oké, akkor sync-eljünk holnap délelőtt
+ez nagyon random volt, de whatever
+a cég új CEO-ja szerint jövőre bővülünk
+updateltem a laptopomat és most nem indul
+a feedback alapján változtatunk a designon
+sajnos a server leállt éjszaka
+a pull requestet át kell nézni, mielőtt mergeljük
+megosztottam veled a Google Docsot
+ez egy game changer lesz szerintem
+a playlistemen csak jó számok vannak
+tegnap bingeltem az egész évadot
+a slacken írtam neked, nem láttad?
+a zoomon találkozunk tízkor
+feltöltöttem a githubra
+a youtube-on láttam egy videót róla
+a Spotifyon hallgatom a podcastot
+# --- ambiguous words
+Kérek egy kávét és egy pohár vizet.
+A kerék kilyukadt, ki kell cserélni.
+Ez a tál nem kerek, hanem ovális.
+Még nem ettem semmit ma.
+Meg kell csinálnom a házit.
+Iszunk egy sört a sarkon?
+Hosszú sor állt a bolt előtt.
+Az öt gyerek közül őt választották.
+Megtaláltam őt a kertben.
+A kör alakú asztal a sarokban áll.
+Ebben a korban már illik tudni.
+Hát persze, hogy eljövök!
+Hat órakor indul a vonat.
+Fél órát vártam rád.
+Félek a sötétben.
+Fel kell kelnem korán.
+Ég a gyertya az asztalon.
+Az ég ma nagyon kék.
+Fúj a szél, hideg van.
+Nem szeretem a bort, inkább sört kérek.
+Kár, hogy nem jöttél el.
+Eltört a karom a balesetben.
+A kés éles, vigyázz!
+Ő is ott volt a megbeszélésen.
+Sír a baba, mert éhes.
+Te is jössz velünk?
+Még egyszer köszönöm.
+Ír egy levelet a nagymamának.
+Vér folyt a sebből.
+Ki fog nyerni a meccsen?
+A fogam nagyon fáj.
+A kéz és a láb is fáj.
+Tűz van, hívd a tűzoltókat!
+Egész éjjel esett az eső.
+Túl késő van már ahhoz, hogy elinduljunk.
+Szép idő van ma, menjünk ki a kertbe.
+Szöges kerítés veszi körül a telket.
+Az ár túl magas volt, ezért nem vettem meg.
+Áll a bál, mindenki veszekszik.
+Az orvos szerint ez egy ritka kór.
+Kerülj beljebb!
+A tőr a falon lógott.
+Ne törd össze a poharat!
+Tegnap este sokáig beszélgettünk.
+A sörözőben találkoztunk.
+# --- everyday messages, names
+Holnap 10-kor van a vizsga, drukkolj nekem!
+Elnézést a késésért, a busz nem jött.
+Tudnál küldeni egy screenshotot a hibáról?
+Szívesen segítek, ha elakadsz, csak írj.
+Nem tudom, hogy mikor érek haza, ne várjatok meg.
+Lehet, hogy jövő héten elutazom pár napra.
+Azt mondta, hogy majd felhív, de még nem hívott.
+Ezt a filmet már ötször láttam, de még mindig imádom.
+A kutyám megette a cipőmet, nem hiszem el.
+Hétvégén megyünk a Balatonra, jössz?
+Fizetés után elmegyünk vacsorázni.
+Szerdán zárva lesz az üzlet.
+A gyerekek az udvaron játszanak.
+Ő a legjobb barátom már óvoda óta.
+Péter és Éva csütörtökön házasodnak.
+Debrecenben születtem, de Budapesten nőttem fel.
+Győrből jöttem vonattal, három óra volt az út.
+A szüleim Pécsen laknak.
+# --- English phrases inside Hungarian
+I'm so tired, de holnap még dolgozni kell.
+Thank you so much, nagyon kedves vagy!
+Oh my god, ez hihetetlen!
+Let's go, mindenki kész?
+Long story short, elkéstem a vonatról.
+To be honest, nem tetszett a film.
+Az egész team nagyon happy volt a végeredménnyel.
+Ez nem a te problémád, it's fine.

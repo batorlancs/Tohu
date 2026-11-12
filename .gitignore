@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Training corpora and logs (regenerate with scripts/prepare_data.py)
+data/
+logs/
+
+# Trained checkpoints and lexicon (large binaries, rebuilt by training)
+models/
