@@ -1,8 +1,33 @@
 # tohu
 
 Restores Hungarian accents (ékezetek) in text typed without them: `kerlek kuldd at` → `kérlek küldd át`.
-A 4.9M-parameter character-level Transformer, plus a word-frequency lexicon and a guard that
+A 38.7M-parameter character-level Transformer, plus a word-frequency lexicon and a guard that
 leaves English words alone. Runs locally on macOS through Core ML.
+
+## Accuracy
+
+Word accuracy on held-out text (3000 lines per set, `scripts/analyze_errors.py`, cleaned test sets):
+
+| | web formal | web informal | subtitles | Wikipedia | challenge | Hunglish | 1-4 words |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `tohu.pt` (38.7M) | 99.55 | 99.43 | 99.23 | 99.30 | 99.53 | 99.26 | 98.58 |
+| `tohu_small.pt` (4.9M) | 99.10 | 98.87 | 98.65 | 98.57 | 98.70 | 98.72 | 97.84 |
+
+About 40% of the remaining errors are pairs where both forms are real words (meg/még, levő/lévő),
+about 20% are names, and about 20% are rare words, many of them typos in the reference text.
+
+## Training
+
+```sh
+uv run python scripts/prepare_data.py                  # download + filter corpora -> data/
+uv run python scripts/build_lexicon.py                 # -> models/lexicon.tsv.gz
+uv run python scripts/clean_data.py --procs 16         # drop lines missing accents -> data/clean/
+# 38.7M model: ~8 h on an RTX 4080 SUPER (16 GB); add --resume to continue after an interruption
+TOHU_DATA=data/clean uv run python scripts/train.py --name big --dim 512 --layers 12 --heads 8 --amp \
+  --tokens 32768 --steps 200000 --lr 8e-4 --warmup 3000 --workers 12 --eval-every 5000 \
+  --buckets 64:.1,128:.2,256:.3,384:.2,512:.2
+TOHU_DATA=data/clean uv run python scripts/analyze_errors.py --model models/big_last.pt
+```
 
 ## Layout
 
@@ -36,7 +61,7 @@ cd ../raycast && npm install && npm run dev
 
 ## Using it
 
-Tohu.app runs in the menu bar and keeps the model loaded (about 200 ms to load, a few ms per sentence).
+Tohu.app runs in the menu bar and keeps the model loaded (tens of ms per sentence, under a second for a page).
 
 | Where | How |
 | --- | --- |

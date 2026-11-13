@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import glob
+import os
 import random
 from pathlib import Path
 
@@ -13,7 +14,8 @@ from torch.utils.data import IterableDataset, get_worker_info
 from .augment import augment
 from .chars import make_example
 
-DATA = Path(__file__).resolve().parents[1] / "data"
+# TOHU_DATA=data/clean trains/evaluates on the cleaned corpora (scripts/clean_data.py)
+DATA = Path(os.environ.get("TOHU_DATA", Path(__file__).resolve().parents[1] / "data")).resolve()
 
 # source glob -> sampling weight
 MIX = {
@@ -55,7 +57,9 @@ BUCKETS = {64: 0.15, 128: 0.25, 192: 0.25, 256: 0.20, 320: 0.15}
 class TrainStream(IterableDataset):
     """Yields whole (ids, labels) batches of shape (tokens_per_batch // L, L) for a random bucket L."""
 
-    def __init__(self, tokens_per_batch: int = 24576, seed: int = 0, augment_p: float = 1.0, mix: dict | None = None):
+    def __init__(self, tokens_per_batch: int = 24576, seed: int = 0, augment_p: float = 1.0, mix: dict | None = None,
+                 buckets: dict[int, float] | None = None):
+        self.buckets = buckets or BUCKETS
         self.tokens = tokens_per_batch
         self.seed = seed
         self.augment_p = augment_p
@@ -74,7 +78,7 @@ class TrainStream(IterableDataset):
         rng = random.Random(self.seed * 1000 + (wi.id if wi else 0))
         corpora = {k: Corpus(k) for k in self.mix}
         while True:
-            L = rng.choices(list(BUCKETS), list(BUCKETS.values()))[0]
+            L = rng.choices(list(self.buckets), list(self.buckets.values()))[0]
             B = self.tokens // L
             ids = np.zeros((B, L), dtype=np.int64)
             labels = np.full((B, L), -100, dtype=np.int64)

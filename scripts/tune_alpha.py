@@ -21,9 +21,12 @@ def main():
     p.add_argument("--alphas", default="0,0.25,0.5,0.75,1,1.5")
     p.add_argument("--lines", type=int, default=1500)
     p.add_argument("--errors", type=float, help="print top errors for this alpha")
-    p.add_argument("--min-totals", default="10", help="comma list of lexicon min counts to try")
+    p.add_argument("--min-totals", default="0", help="comma list of lexicon min counts to try")
+    p.add_argument("--lexicon", default=str(ROOT / "models" / "lexicon.tsv.gz"))
     a = p.parse_args()
-    r = Restorer(a.model, device="mps")
+    import torch
+
+    r = Restorer(a.model, device="cuda" if torch.cuda.is_available() else "mps", lexicon=a.lexicon)
     data = {}
     for s in SETS:
         t = load_eval_set(s, a.lines)

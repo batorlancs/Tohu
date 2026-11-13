@@ -1,7 +1,11 @@
-"""Count accented word forms over all training corpora -> models/lexicon.tsv.gz"""
+"""Count accented word forms over all training corpora -> models/lexicon.tsv.gz
+
+Reads from $TOHU_DATA (default data/). Usage: build_lexicon.py [--out PATH] [--procs N]
+"""
 
 from __future__ import annotations
 
+import argparse
 import glob
 import gzip
 import sys
@@ -14,6 +18,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from tohu.chars import deaccent  # noqa: E402
+from tohu.data import DATA  # noqa: E402
 from tohu.lexicon import DEFAULT_LEXICON, TOKEN_RE  # noqa: E402
 
 CHUNK = 50_000_000  # chars
@@ -32,25 +37,30 @@ def count_file(path: str) -> Counter:
 
 
 def main():
-    files = sorted(glob.glob(str(ROOT / "data" / "fineweb_*_0*.u16"))) + [
-        str(ROOT / "data" / "subs_train.u16"),
-        str(ROOT / "data" / "wiki_train.u16"),
+    p = argparse.ArgumentParser()
+    p.add_argument("--out", default=str(DEFAULT_LEXICON))
+    p.add_argument("--procs", type=int, default=3)
+    a = p.parse_args()
+    out = Path(a.out)
+    files = sorted(glob.glob(str(DATA / "fineweb_*_0*.u16"))) + [
+        str(DATA / "subs_train.u16"),
+        str(DATA / "wiki_train.u16"),
     ]
     counts: Counter = Counter()
-    with Pool(3) as pool:
+    with Pool(a.procs) as pool:
         for c in pool.imap_unordered(count_file, files):
             counts.update(c)
     by_key: dict[str, list[tuple[str, int]]] = defaultdict(list)
     for w, c in counts.items():
         if c >= 2:
             by_key[deaccent(w)].append((w, c))
-    DEFAULT_LEXICON.parent.mkdir(exist_ok=True)
-    with gzip.open(DEFAULT_LEXICON, "wt", encoding="utf-8", compresslevel=6) as f:
+    out.parent.mkdir(exist_ok=True)
+    with gzip.open(out, "wt", encoding="utf-8", compresslevel=6) as f:
         for k, forms in by_key.items():
             if sum(c for _, c in forms) >= 3:
                 forms.sort(key=lambda x: -x[1])
                 f.write(k + "\t" + " ".join(f"{w}:{c}" for w, c in forms) + "\n")
-    print("keys:", len(by_key), "size MB:", DEFAULT_LEXICON.stat().st_size / 1e6)
+    print("keys:", len(by_key), "size MB:", out.stat().st_size / 1e6)
 
 
 if __name__ == "__main__":

@@ -67,7 +67,7 @@ class Restorer:
         device: str = "cpu",
         guard: bool = True,
         lexicon: str | Path | Lexicon | None = DEFAULT_LEXICON,
-        alpha: float = 0.5,
+        alpha: float = 0.25,
         min_total: int = 0,
     ):
         self.device = torch.device(device)

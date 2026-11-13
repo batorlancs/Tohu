@@ -8,10 +8,9 @@ from collections import Counter
 from pathlib import Path
 
 from .chars import BASE_VOWELS, deaccent, normalize
-from .data import load_text
+from .data import DATA, load_text
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data"
 WORD_RE = re.compile(r"[^\W\d_]+(?:-[^\W\d_]+)*")
 
 EVAL_SETS = {
