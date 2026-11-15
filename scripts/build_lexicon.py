@@ -42,10 +42,8 @@ def main():
     p.add_argument("--procs", type=int, default=3)
     a = p.parse_args()
     out = Path(a.out)
-    files = sorted(glob.glob(str(DATA / "fineweb_*_0*.u16"))) + [
-        str(DATA / "subs_train.u16"),
-        str(DATA / "wiki_train.u16"),
-    ]
+    files = sorted(glob.glob(str(DATA / "fineweb_*_0*.u16")) + glob.glob(str(DATA / "subs_train*.u16"))
+                   + glob.glob(str(DATA / "wiki_train*.u16")))
     counts: Counter = Counter()
     with Pool(a.procs) as pool:
         for c in pool.imap_unordered(count_file, files):

@@ -1,7 +1,7 @@
 # tohu
 
 Restores Hungarian accents (ékezetek) in text typed without them: `kerlek kuldd at` → `kérlek küldd át`.
-A 38.7M-parameter character-level Transformer, plus a word-frequency lexicon and a guard that
+A 75M-parameter character-level Transformer, plus a word-frequency lexicon and a guard that
 leaves English words alone. Runs locally on macOS through Core ML.
 
 ## Accuracy
@@ -10,7 +10,8 @@ Word accuracy on held-out text (3000 lines per set, `scripts/analyze_errors.py`,
 
 | | web formal | web informal | subtitles | Wikipedia | challenge | Hunglish | 1-4 words |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `tohu.pt` (38.7M) | 99.55 | 99.43 | 99.23 | 99.30 | 99.53 | 99.26 | 98.58 |
+| `tohu.pt` (75.4M) | 99.61 | 99.51 | 99.28 | 99.39 | 99.53 | 99.33 | 98.73 |
+| previous (38.7M) | 99.55 | 99.43 | 99.23 | 99.30 | 99.53 | 99.26 | 98.58 |
 | `tohu_small.pt` (4.9M) | 99.10 | 98.87 | 98.65 | 98.57 | 98.70 | 98.72 | 97.84 |
 
 About 40% of the remaining errors are pairs where both forms are real words (meg/még, levő/lévő),
@@ -19,14 +20,22 @@ about 20% are names, and about 20% are rare words, many of them typos in the ref
 ## Training
 
 ```sh
-uv run python scripts/prepare_data.py                  # download + filter corpora -> data/
+# download + filter corpora -> data/ (~5.8B characters; the jobs can run in parallel)
+for s in 000 001 002 003; do for k in 00000 00001 00002; do
+  uv run python scripts/prepare_data.py fineweb --shard ${s}_$k; done; done
+uv run python scripts/prepare_data.py fineweb-test
+for p in 0 1 2 3; do uv run python scripts/prepare_data.py wiki --part $p; done
+uv run python scripts/prepare_data.py subs --part 1 && uv run python scripts/prepare_data.py subs --part 2
+uv run python scripts/prepare_data.py english
 uv run python scripts/build_lexicon.py                 # -> models/lexicon.tsv.gz
-uv run python scripts/clean_data.py --procs 16         # drop lines missing accents -> data/clean/
-# 38.7M model: ~8 h on an RTX 4080 SUPER (16 GB); add --resume to continue after an interruption
-TOHU_DATA=data/clean uv run python scripts/train.py --name big --dim 512 --layers 12 --heads 8 --amp \
-  --tokens 32768 --steps 200000 --lr 8e-4 --warmup 3000 --workers 12 --eval-every 5000 \
-  --buckets 64:.1,128:.2,256:.3,384:.2,512:.2
-TOHU_DATA=data/clean uv run python scripts/analyze_errors.py --model models/big_last.pt
+uv run python scripts/clean_data.py --procs 16         # drop lines with rare under-accented words -> data/clean/
+# drop lines with accent typos a trained model is sure about -> data/clean2/ (~3 h on GPU)
+TOHU_DATA=data/clean uv run python scripts/model_clean.py --model models/tohu.pt --out data/clean2
+# 75M model: ~21 h on an RTX 4080 SUPER (16 GB); add --resume to continue after an interruption
+TOHU_DATA=data/clean2 uv run python scripts/train.py --name v3 --dim 640 --layers 15 --heads 10 --amp \
+  --tokens 24576 --steps 400000 --lr 6e-4 --warmup 4000 --workers 12 --eval-every 10000 --eval-lines 600 \
+  --buckets 64:.1,128:.2,256:.3,384:.2,512:.2 --ema 0.9999
+TOHU_DATA=data/clean uv run python scripts/analyze_errors.py --model models/v3_last.pt
 ```
 
 ## Layout

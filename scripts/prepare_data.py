@@ -167,24 +167,29 @@ def fineweb(shard: str, split: str, formal_limit: int, informal_limit: int, form
     wi.close()
 
 
-def wiki(limit: int, val_limit: int):
+def wiki(limit: int, val_limit: int, part: int = 3):
+    """part 3 is the original file (train + every 100th article as val); parts 0-2 are extra train data."""
     from datasets import load_dataset
 
     ds = load_dataset(
         "parquet",
-        data_files="hf://datasets/wikimedia/wikipedia/20231101.hu/train-00003-of-00004.parquet",
+        data_files=f"hf://datasets/wikimedia/wikipedia/20231101.hu/train-{part:05d}-of-00004.parquet",
         split="train",
         streaming=True,
     )
-    w, v = Writer("wiki_train", limit), Writer("wiki_val", val_limit)
+    if part == 3:
+        w, v = Writer("wiki_train", limit), Writer("wiki_val", val_limit)
+    else:
+        w, v = Writer(f"wiki_train_{part}", limit), None
     for i, ex in enumerate(ds):
         doc = clean_doc(ex["text"], min_line=30)
         if doc:
-            (v if i % 100 == 0 else w).write(doc)
-        if w.full and v.full:
+            (v if v is not None and i % 100 == 0 else w).write(doc)
+        if w.full and (v is None or v.full):
             break
     w.close()
-    v.close()
+    if v is not None:
+        v.close()
 
 
 def _stream_gz_lines(url: str, max_bytes: int):
@@ -200,9 +205,14 @@ def _stream_gz_lines(url: str, max_bytes: int):
         proc.kill()
 
 
-def subs(limit: int, val_limit: int, max_bytes: int):
+def subs(limit: int, val_limit: int, max_bytes: int, part: int = 1):
+    """part 1: the original train/val files. part 2: everything after where part 1 stopped
+    (part 1 is replayed without saving, so the val documents never end up in part 2)."""
     url = "https://object.pouta.csc.fi/OPUS-OpenSubtitles/v2018/mono/hu.txt.gz"
-    w, v = Writer("subs_train", limit), Writer("subs_val", val_limit)
+    if part == 1:
+        w, v = Writer("subs_train", limit), Writer("subs_val", val_limit)
+    else:
+        w, v = _NullWriter(250_000_000), _NullWriter(3_000_000)  # replay part 1's limits
     buf, groups = [], 0
     for line in _stream_gz_lines(url, max_bytes):
         line = line.strip()
@@ -215,9 +225,27 @@ def subs(limit: int, val_limit: int, max_bytes: int):
                 (v if groups % 100 == 0 else w).write(doc)
             buf = []
             if w.full and v.full:
-                break
+                if part == 1 or isinstance(w, Writer):
+                    break
+                w, v = Writer("subs_train_2", limit), _NullWriter(1 << 62)  # part 1 replayed; now save
     w.close()
     v.close()
+
+
+class _NullWriter:
+    def __init__(self, limit: int):
+        self.n, self.limit = 0, limit
+
+    @property
+    def full(self) -> bool:
+        return self.n >= self.limit
+
+    def write(self, text: str):
+        if not self.full and text:
+            self.n += len(text) + 2
+
+    def close(self):
+        pass
 
 
 def english(n_lines: int):
@@ -239,6 +267,7 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("source", choices=["fineweb", "fineweb-test", "wiki", "subs", "english"])
     p.add_argument("--shard", default="000_00000")
+    p.add_argument("--part", type=int, help="wiki: parquet file 0-3 (default 3); subs: 1 or 2 (default 1)")
     a = p.parse_args()
     M = 1_000_000
     if a.source == "fineweb":
@@ -246,8 +275,14 @@ if __name__ == "__main__":
     elif a.source == "fineweb-test":
         fineweb("000_00000", "test", formal_limit=4 * M, informal_limit=4 * M, formal_keep=1.0)
     elif a.source == "wiki":
-        wiki(limit=120 * M, val_limit=3 * M)
+        if a.part is None or a.part == 3:
+            wiki(limit=120 * M, val_limit=3 * M)
+        else:
+            wiki(limit=1000 * M, val_limit=0, part=a.part)
     elif a.source == "subs":
-        subs(limit=250 * M, val_limit=3 * M, max_bytes=400_000_000)
+        if a.part == 2:
+            subs(limit=1000 * M, val_limit=0, max_bytes=2_000_000_000, part=2)
+        else:
+            subs(limit=250 * M, val_limit=3 * M, max_bytes=400_000_000)
     elif a.source == "english":
         english(300_000)

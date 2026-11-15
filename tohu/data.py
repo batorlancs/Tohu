@@ -21,8 +21,8 @@ DATA = Path(os.environ.get("TOHU_DATA", Path(__file__).resolve().parents[1] / "d
 MIX = {
     "fineweb_formal_0*.u16": 0.38,
     "fineweb_informal_0*.u16": 0.27,
-    "subs_train.u16": 0.22,
-    "wiki_train.u16": 0.13,
+    "subs_train*.u16": 0.22,
+    "wiki_train*.u16": 0.13,
 }
 
 

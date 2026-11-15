@@ -47,6 +47,8 @@ def main():
     p.add_argument("--dropout", type=float, default=0.05)
     p.add_argument("--buckets", help="length:weight list, e.g. 64:.1,128:.2,256:.3,384:.2,512:.2")
     p.add_argument("--resume", action="store_true", help="continue from models/<name>_state.pt")
+    p.add_argument("--ema", type=float, default=0.0, help="EMA decay of the weights, e.g. 0.9999 (0 = off); "
+                   "evaluation and the saved checkpoints then use the averaged weights")
     a = p.parse_args()
 
     torch.manual_seed(a.seed)
@@ -67,6 +69,12 @@ def main():
     if state:
         model.load_state_dict(state["model"]["state"])
     model.to(dev).train()
+    ema = None
+    if a.ema:
+        ema = AccentModel(model.cfg).to(dev).eval()
+        ema.load_state_dict(state["ema"] if state and "ema" in state else model.state_dict())
+        ema.requires_grad_(False)
+        ema_p, model_p = list(ema.parameters()), list(model.parameters())
     print(f"params: {model.num_params() / 1e6:.2f}M  device: {dev}", flush=True)
     fmodel = model if a.no_compile else torch.compile(model, dynamic=False)
 
@@ -116,6 +124,9 @@ def main():
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
         opt.step()
+        if ema is not None:
+            with torch.no_grad():
+                torch._foreach_lerp_(ema_p, model_p, 1.0 - min(a.ema, (1 + step) / (10 + step)))
         chars += int((ids != 0).sum())
         lv = loss.item() if step % 50 == 0 else None
         if lv is not None:
@@ -125,17 +136,25 @@ def main():
                   f"elapsed {el / 60:.1f}m", flush=True)
         if step % a.eval_every == 0 or step == a.steps:
             model.eval()
-            res = evaluate(Restorer(model, device=str(dev)), n_lines=a.eval_lines)
+            if ema is not None:
+                raw = evaluate(Restorer(model, device=str(dev)), n_lines=a.eval_lines)
+                raw_avg = sum(v["word_acc"] for v in raw.values()) / len(raw) * 100
+                print(f"EVAL-RAW step {step} avg {raw_avg:.2f}", flush=True)
+            final = ema if ema is not None else model
+            res = evaluate(Restorer(final, device=str(dev)), n_lines=a.eval_lines)
             model.train()
             summary = {k: round(v["word_acc"] * 100, 2) for k, v in res.items()}
             score = sum(summary.values()) / len(summary)
             print(f"EVAL step {step} word_acc {json.dumps(summary)} avg {score:.2f}", flush=True)
-            torch.save(model.checkpoint(), out_dir / f"{a.name}_last.pt")
+            torch.save(final.checkpoint(), out_dir / f"{a.name}_last.pt")
             if score > best:
                 best = score
-                torch.save(model.checkpoint(), out_dir / f"{a.name}.pt")
+                torch.save(final.checkpoint(), out_dir / f"{a.name}.pt")
                 print(f"saved best -> models/{a.name}.pt", flush=True)
-            torch.save({"model": model.checkpoint(), "opt": opt.state_dict(), "step": step, "best": best}, state_path)
+            st = {"model": model.checkpoint(), "opt": opt.state_dict(), "step": step, "best": best}
+            if ema is not None:
+                st["ema"] = ema.state_dict()
+            torch.save(st, state_path)
     print("done", flush=True)
     import os
 

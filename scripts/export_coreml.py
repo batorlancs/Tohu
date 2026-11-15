@@ -177,7 +177,7 @@ def main():
     ap.add_argument("--model", default=str(DEFAULT_MODEL))
     ap.add_argument("--lexicon", default=str(DEFAULT_LEXICON))
     ap.add_argument("--out", default=str(ROOT / "models" / "export"))
-    ap.add_argument("--precision", choices=["fp16", "fp32"], default="fp32")
+    ap.add_argument("--precision", choices=["fp16", "fp32"], default="fp16")
     a = ap.parse_args()
 
     import coremltools as ct
@@ -214,7 +214,7 @@ def main():
     (out / "manifest.json").write_text(json.dumps(manifest, ensure_ascii=False, indent=1))
 
     # --- parity: Core ML vs PyTorch on the challenge set (and one long text to exercise windowing)
-    ml = ct.models.MLModel(str(out / "Tohu.mlpackage"), compute_units=ct.ComputeUnit.ALL)
+    ml = ct.models.MLModel(str(out / "Tohu.mlpackage"), compute_units=ct.ComputeUnit.CPU_ONLY)  # what the app uses
     cm = CoreMLRestorer(ml, model=model)
     gold = challenge_lines()
     inputs = [deaccent(g) for g in gold] + [" ".join(deaccent(g) for g in gold)]
